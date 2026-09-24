@@ -1,0 +1,31 @@
+name = "hope-sponsor-hub"
+main = "src/worker/index.ts"
+compatibility_date = "2025-02-24"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./src/frontend/dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "hope-db"
+database_id = "hope-db-local"
+migrations_dir = "migrations"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "hope-assets"
+
+[triggers]
+crons = ["* * * * *", "*/5 * * * *", "0 1 * * *"]
+
+[vars]
+ENVIRONMENT = "development"
+SEND_ENABLED = "false"
+DRY_RUN = "true"
+CF_ACCESS_TEAM_DOMAIN = ""
+CF_ACCESS_AUD = ""
+ALLOWED_EMAILS = "hopebyssi@gmail.com,saysanrau@gmail.com,tinethran@gmail.com"
+PIXEL_HOST = "localhost:8788"

@@ -1,0 +1,12 @@
+name = "hope-pixel"
+main = "src/pixel/index.ts"
+compatibility_date = "2025-02-24"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "hope-db"
+database_id = "hope-db-local"
+
+[vars]
+ENVIRONMENT = "development"
