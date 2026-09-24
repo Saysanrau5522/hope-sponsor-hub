@@ -6,6 +6,7 @@ import problemsRoute from './routes/problems';
 import validateRoute from './routes/validate';
 import authRoute from './routes/auth';
 import templatesRoute from './routes/templates';
+import gmailRoute from './routes/gmail';
 import { AuthUser } from '../shared/types';
 
 const app = new Hono<{ Bindings: WorkerEnv; Variables: { user: AuthUser } }>();
@@ -34,6 +35,7 @@ app.route('/api/sponsors', sponsorsRoute);
 app.route('/api/problems', problemsRoute);
 app.route('/api/validate', validateRoute);
 app.route('/api/templates', templatesRoute);
+app.route('/api/gmail', gmailRoute);
 
 // Fallback to static frontend assets if bound
 app.all('*', async (c) => {

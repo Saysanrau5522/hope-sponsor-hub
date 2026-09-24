@@ -5,6 +5,7 @@ import { ProblemsTab } from './components/ProblemsTab';
 import { SponsorDrawer } from './components/SponsorDrawer';
 import { ValidationProgressModal } from './components/ValidationProgressModal';
 import { TemplatesTab } from './components/TemplatesTab';
+import { SendCenterTab } from './components/SendCenterTab';
 import { api } from './api/client';
 import {
   Users,
@@ -169,9 +170,10 @@ export const App: React.FC = () => {
 
         {activeTab === 'templates' && <TemplatesTab />}
 
+        {activeTab === 'send_center' && <SendCenterTab onRefreshData={handleRefresh} />}
+
         {(activeTab === 'replies' ||
           activeTab === 'calls' ||
-          activeTab === 'send_center' ||
           activeTab === 'settings') && (
           <div className="bg-white dark:bg-slate-900 rounded-xl p-8 border border-slate-200 dark:border-slate-800 text-center shadow-sm space-y-3">
             <h2 className="text-base font-bold text-slate-900 dark:text-white capitalize">
