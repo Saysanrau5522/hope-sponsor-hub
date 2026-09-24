@@ -10,8 +10,11 @@ import gmailRoute from './routes/gmail';
 import queueRoute from './routes/queue';
 import repliesRoute from './routes/replies';
 import callsRoute from './routes/calls';
+import analyticsRoute from './routes/analytics';
+import settingsRoute from './routes/settings';
 import { processQueueTick } from './services/queue';
 import { pollInboxTick } from './services/inbox';
+import { performDailyBackup } from './services/backup';
 import { AuthUser } from '../shared/types';
 
 const app = new Hono<{ Bindings: WorkerEnv; Variables: { user: AuthUser } }>();
@@ -44,6 +47,8 @@ app.route('/api/gmail', gmailRoute);
 app.route('/api/queue', queueRoute);
 app.route('/api/replies', repliesRoute);
 app.route('/api/calls', callsRoute);
+app.route('/api/analytics', analyticsRoute);
+app.route('/api/settings', settingsRoute);
 
 // Fallback to static frontend assets if bound
 app.all('*', async (c) => {
@@ -93,8 +98,17 @@ export default {
         })()
       );
     } else if (cron === '0 1 * * *') {
-      // Daily backup and digest (processed in Phase 6)
-      console.log('[Cron] Daily backup & digest handler (01:00 UTC / 09:00 MYT)');
+      // Daily backup and snapshot to R2 (01:00 UTC / 09:00 MYT)
+      ctx.waitUntil(
+        (async () => {
+          try {
+            const res = await performDailyBackup(env);
+            console.log(`[Cron Daily Backup] Successfully backed up to ${res.backupPath} (${res.sizeBytes} bytes)`);
+          } catch (err) {
+            console.error('[Cron Daily Backup] Error during daily backup:', err);
+          }
+        })()
+      );
     }
   },
 };

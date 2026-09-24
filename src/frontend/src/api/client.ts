@@ -166,4 +166,40 @@ export const api = {
     }
     return res.json();
   },
+
+  // Phase 6: Analytics & Settings APIs
+  async getOverviewAnalytics() {
+    const res = await fetch('/api/analytics/overview');
+    if (!res.ok) throw new Error('Failed to fetch overview analytics');
+    return res.json();
+  },
+
+  async getSettings() {
+    const res = await fetch('/api/settings');
+    if (!res.ok) throw new Error('Failed to fetch settings');
+    return res.json();
+  },
+
+  async updateSettings(data: Record<string, any>) {
+    const res = await fetch('/api/settings', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to update settings');
+    return res.json();
+  },
+
+  async triggerBackup() {
+    const res = await fetch('/api/settings/backup', { method: 'POST' });
+    if (!res.ok) throw new Error('Failed to trigger backup');
+    return res.json();
+  },
+
+  async getBackups() {
+    const res = await fetch('/api/settings/backups');
+    if (!res.ok) throw new Error('Failed to fetch backups list');
+    return res.json();
+  },
 };
+

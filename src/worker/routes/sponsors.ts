@@ -342,4 +342,82 @@ sponsorsRoute.post('/bulk', async (c) => {
   return c.json({ success: true, count: sponsor_ids.length });
 });
 
+// GET /api/sponsors/export/csv - Export full sponsors database to RFC 4180 CSV
+sponsorsRoute.get('/export/csv', async (c) => {
+  const db = c.env.DB;
+  const rows = await db
+    .prepare('SELECT * FROM sponsors ORDER BY seq ASC')
+    .all<any>();
+
+  function escapeCsv(val: any): string {
+    if (val === null || val === undefined) return '';
+    const str = String(val);
+    if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  }
+
+  const headers = [
+    'Seq',
+    'Ref No',
+    'Company Name',
+    'Display Name',
+    'Primary Email',
+    'Alt Emails',
+    'Phone',
+    'Website',
+    'Email Status',
+    'Contact Quality',
+    'Stage',
+    'Owner',
+    'Pledge Tier',
+    'Pledge Amount (RM)',
+    'In-Kind Description',
+    'Pledge Received (RM)',
+    'Already Contacted Date',
+    'Notes',
+    'Do Not Contact',
+    'Updated At',
+  ];
+
+  const lines = [headers.join(',')];
+
+  for (const s of rows.results || []) {
+    lines.push(
+      [
+        s.seq,
+        escapeCsv(s.ref_no),
+        escapeCsv(s.company_name),
+        escapeCsv(s.display_name),
+        escapeCsv(s.primary_email),
+        escapeCsv(s.alt_emails),
+        escapeCsv(s.phone),
+        escapeCsv(s.website),
+        escapeCsv(s.email_status),
+        escapeCsv(s.contact_quality),
+        escapeCsv(s.stage),
+        escapeCsv(s.owner),
+        escapeCsv(s.pledge_tier),
+        s.pledge_amount || 0,
+        escapeCsv(s.in_kind_description),
+        s.pledge_received_amount || 0,
+        escapeCsv(s.already_contacted_date),
+        escapeCsv(s.notes),
+        s.do_not_contact ? 1 : 0,
+        escapeCsv(s.updated_at),
+      ].join(',')
+    );
+  }
+
+  const csvContent = lines.join('\r\n');
+  return new Response(csvContent, {
+    headers: {
+      'Content-Type': 'text/csv; charset=utf-8',
+      'Content-Disposition': 'attachment; filename="hope_sponsors_export.csv"',
+    },
+  });
+});
+
 export default sponsorsRoute;
+

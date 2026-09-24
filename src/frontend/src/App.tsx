@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar, TabKey } from './components/Navbar';
+import { OverviewTab } from './components/OverviewTab';
 import { SponsorsTab } from './components/SponsorsTab';
 import { ProblemsTab } from './components/ProblemsTab';
 import { SponsorDrawer } from './components/SponsorDrawer';
@@ -8,6 +9,7 @@ import { TemplatesTab } from './components/TemplatesTab';
 import { SendCenterTab } from './components/SendCenterTab';
 import { RepliesTab } from './components/RepliesTab';
 import { CallListTab } from './components/CallListTab';
+import { SettingsTab } from './components/SettingsTab';
 import { api } from './api/client';
 import {
   Users,
@@ -107,67 +109,11 @@ export const App: React.FC = () => {
         )}
 
         {activeTab === 'overview' && (
-          <div className="space-y-6 animate-fade-in">
-            {/* Quick KPI Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <div className="text-slate-400 text-xs font-semibold uppercase">Total Sponsors</div>
-                <div className="text-2xl font-bold text-slate-900 dark:text-white mt-1">485</div>
-                <div className="text-xs text-purple-600 dark:text-purple-400 mt-0.5">399 with valid email</div>
-              </div>
-              <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <div className="text-slate-400 text-xs font-semibold uppercase">Ready to Queue</div>
-                <div className="text-2xl font-bold text-blue-600 mt-1">391</div>
-                <div className="text-xs text-slate-400 mt-0.5">Pending batch approval</div>
-              </div>
-              <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <div className="text-slate-400 text-xs font-semibold uppercase">Problems / Holdback</div>
-                <div className="text-2xl font-bold text-amber-600 mt-1">{problemCount}</div>
-                <div className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">86 missing, 7 shared inboxes</div>
-              </div>
-              <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                <div className="text-slate-400 text-xs font-semibold uppercase">Sponsorship Target</div>
-                <div className="text-2xl font-bold text-emerald-600 mt-1">RM 10,140</div>
-                <div className="text-xs text-slate-400 mt-0.5">Corporate funding goal</div>
-              </div>
-            </div>
-
-            {/* Phase 2-6 Roadmap Preview */}
-            <div className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                HOPE 5.0 Sponsorship Pipeline Setup
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                <div className="p-4 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800">
-                  <div className="font-bold text-purple-900 dark:text-purple-200 flex items-center mb-1">
-                    <FileText className="w-4 h-4 mr-1 text-purple-600" />
-                    Phase 2: Templates & Letters
-                  </div>
-                  <p className="text-purple-700 dark:text-purple-300">
-                    Just-in-time DOCX letter generator with fflate, golden test diffing, and PDF viewer.
-                  </p>
-                </div>
-                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
-                  <div className="font-bold text-slate-900 dark:text-white flex items-center mb-1">
-                    <Send className="w-4 h-4 mr-1 text-indigo-500" />
-                    Phase 3: Gmail & Tracking
-                  </div>
-                  <p className="text-slate-500 dark:text-slate-400">
-                    OAuth connect, MIME builder, hope-pixel open classification.
-                  </p>
-                </div>
-                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
-                  <div className="font-bold text-slate-900 dark:text-white flex items-center mb-1">
-                    <TrendingUp className="w-4 h-4 mr-1 text-emerald-500" />
-                    Phase 4-6: Queue, Polling & Polish
-                  </div>
-                  <p className="text-slate-500 dark:text-slate-400">
-                    Cron sender, ramp caps, inbox replies, follow-ups, and pledge thermometer.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <OverviewTab
+            onSelectTab={setActiveTab}
+            onOpenDrawer={(id) => setDrawerSponsorId(id)}
+            onRefreshData={handleRefresh}
+          />
         )}
 
         {activeTab === 'templates' && <TemplatesTab />}
@@ -188,16 +134,7 @@ export const App: React.FC = () => {
           />
         )}
 
-        {activeTab === 'settings' && (
-          <div className="bg-white dark:bg-slate-900 rounded-xl p-8 border border-slate-200 dark:border-slate-800 text-center shadow-sm space-y-3">
-            <h2 className="text-base font-bold text-slate-900 dark:text-white capitalize">
-              Settings & Configuration
-            </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-              Configure daily ramp limits (25, 50, 80), send windows (09:00 - 16:30 MYT), Gmail OAuth tokens, and Cloudflare R2 backup locations.
-            </p>
-          </div>
-        )}
+        {activeTab === 'settings' && <SettingsTab onRefreshData={handleRefresh} />}
       </main>
 
       {/* Slide-out Drawer */}
