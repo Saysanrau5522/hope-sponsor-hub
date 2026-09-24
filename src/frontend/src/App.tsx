@@ -6,6 +6,8 @@ import { SponsorDrawer } from './components/SponsorDrawer';
 import { ValidationProgressModal } from './components/ValidationProgressModal';
 import { TemplatesTab } from './components/TemplatesTab';
 import { SendCenterTab } from './components/SendCenterTab';
+import { RepliesTab } from './components/RepliesTab';
+import { CallListTab } from './components/CallListTab';
 import { api } from './api/client';
 import {
   Users,
@@ -172,16 +174,27 @@ export const App: React.FC = () => {
 
         {activeTab === 'send_center' && <SendCenterTab onRefreshData={handleRefresh} />}
 
-        {(activeTab === 'replies' ||
-          activeTab === 'calls' ||
-          activeTab === 'settings') && (
+        {activeTab === 'replies' && (
+          <RepliesTab
+            onOpenDrawer={(id) => setDrawerSponsorId(id)}
+            onRefreshData={handleRefresh}
+          />
+        )}
+
+        {activeTab === 'calls' && (
+          <CallListTab
+            onOpenDrawer={(id) => setDrawerSponsorId(id)}
+            onRefreshData={handleRefresh}
+          />
+        )}
+
+        {activeTab === 'settings' && (
           <div className="bg-white dark:bg-slate-900 rounded-xl p-8 border border-slate-200 dark:border-slate-800 text-center shadow-sm space-y-3">
             <h2 className="text-base font-bold text-slate-900 dark:text-white capitalize">
-              {activeTab.replace('_', ' ')} Tab
+              Settings & Configuration
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-              This module will be activated in upcoming phases. Phase 1 Foundation establishes the core schema,
-              idempotent 485-sponsor import, DoH validation pipeline, Sponsors directory, and Problems holdback center.
+              Configure daily ramp limits (25, 50, 80), send windows (09:00 - 16:30 MYT), Gmail OAuth tokens, and Cloudflare R2 backup locations.
             </p>
           </div>
         )}

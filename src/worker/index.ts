@@ -8,7 +8,10 @@ import authRoute from './routes/auth';
 import templatesRoute from './routes/templates';
 import gmailRoute from './routes/gmail';
 import queueRoute from './routes/queue';
+import repliesRoute from './routes/replies';
+import callsRoute from './routes/calls';
 import { processQueueTick } from './services/queue';
+import { pollInboxTick } from './services/inbox';
 import { AuthUser } from '../shared/types';
 
 const app = new Hono<{ Bindings: WorkerEnv; Variables: { user: AuthUser } }>();
@@ -39,6 +42,8 @@ app.route('/api/validate', validateRoute);
 app.route('/api/templates', templatesRoute);
 app.route('/api/gmail', gmailRoute);
 app.route('/api/queue', queueRoute);
+app.route('/api/replies', repliesRoute);
+app.route('/api/calls', callsRoute);
 
 // Fallback to static frontend assets if bound
 app.all('*', async (c) => {
@@ -73,8 +78,20 @@ export default {
         })()
       );
     } else if (cron === '*/5 * * * *') {
-      // Inbox poll (processed in Phase 5)
-      console.log('[Cron] Inbox poll 5-minute handler');
+      // Inbox poll (every 5 minutes)
+      ctx.waitUntil(
+        (async () => {
+          try {
+            const res = await pollInboxTick(env);
+            console.log(`[Cron Inbox Poll] Checked ${res.checkedCount} msgs: ${res.newRepliesCount} replies, ${res.newBouncesCount} bounces, ${res.newAutoRepliesCount} auto-replies`);
+            if (res.errors.length > 0) {
+              console.warn('[Cron Inbox Poll] Warnings/Errors:', res.errors);
+            }
+          } catch (err) {
+            console.error('[Cron Inbox Poll] Error during poll tick:', err);
+          }
+        })()
+      );
     } else if (cron === '0 1 * * *') {
       // Daily backup and digest (processed in Phase 6)
       console.log('[Cron] Daily backup & digest handler (01:00 UTC / 09:00 MYT)');

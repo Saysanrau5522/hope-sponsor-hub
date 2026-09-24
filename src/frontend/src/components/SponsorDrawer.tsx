@@ -297,7 +297,53 @@ export const SponsorDrawer: React.FC<SponsorDrawerProps> = ({ sponsorId, onClose
               </div>
 
               {/* Timeline / Activity History */}
-              <div className="space-y-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+              <div className="space-y-4 pt-3 border-t border-slate-200 dark:border-slate-800">
+                {/* Calls History */}
+                {history?.calls?.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                      <Phone className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                      Logged Calls ({history.calls.length})
+                    </h3>
+                    <div className="space-y-2">
+                      {history.calls.map((call: any) => (
+                        <div key={call.id} className="text-xs bg-purple-50/50 dark:bg-purple-950/30 p-2.5 rounded-lg border border-purple-200 dark:border-purple-800">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="font-semibold text-purple-900 dark:text-purple-200">
+                              {call.caller} • <span className="capitalize">{call.outcome.replace('_', ' ')}</span>
+                            </span>
+                            <span className="text-slate-400">{new Date(call.created_at).toLocaleDateString()}</span>
+                          </div>
+                          {call.notes && <p className="text-slate-600 dark:text-slate-300 mt-1">{call.notes}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Replies / Bounces History */}
+                {history?.replies?.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                      <Mail className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                      Replies & Notifications ({history.replies.length})
+                    </h3>
+                    <div className="space-y-2">
+                      {history.replies.map((rep: any) => (
+                        <div key={rep.id} className="text-xs bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="font-semibold text-slate-800 dark:text-slate-200 capitalize">
+                              {rep.type.replace('_', ' ')}
+                            </span>
+                            <span className="text-slate-400">{new Date(rep.received_at).toLocaleDateString()}</span>
+                          </div>
+                          {rep.snippet && <p className="text-slate-600 dark:text-slate-300 mt-1">{rep.snippet}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
                   Activity Timeline
                 </h3>

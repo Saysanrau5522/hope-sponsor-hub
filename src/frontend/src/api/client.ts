@@ -107,4 +107,63 @@ export const api = {
     if (!res.ok) throw new Error('Failed to run validation chunk');
     return res.json();
   },
+
+  // Phase 5: Replies & Calls APIs
+  async getReplies(type = 'all', page = 1, limit = 50) {
+    const res = await fetch(`/api/replies?type=${type}&page=${page}&limit=${limit}`);
+    if (!res.ok) throw new Error('Failed to fetch replies');
+    return res.json();
+  },
+
+  async pollReplies() {
+    const res = await fetch('/api/replies/poll', { method: 'POST' });
+    if (!res.ok) throw new Error('Failed to poll inbox');
+    return res.json();
+  },
+
+  async updateReply(id: number, data: { outcome?: string; notes?: string }) {
+    const res = await fetch(`/api/replies/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to update reply');
+    return res.json();
+  },
+
+  async getCallQueue() {
+    const res = await fetch('/api/calls/queue');
+    if (!res.ok) throw new Error('Failed to fetch call queue');
+    return res.json();
+  },
+
+  async getCalls(sponsor_id?: number) {
+    const url = sponsor_id ? `/api/calls?sponsor_id=${sponsor_id}` : '/api/calls';
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch calls');
+    return res.json();
+  },
+
+  async logCall(data: {
+    sponsor_id: number;
+    caller: string;
+    outcome: string;
+    notes?: string;
+    callback_date?: string;
+    pledge_tier?: string;
+    pledge_amount?: number;
+    in_kind_description?: string;
+    stage_update?: string;
+  }) {
+    const res = await fetch('/api/calls', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to log call');
+    }
+    return res.json();
+  },
 };
