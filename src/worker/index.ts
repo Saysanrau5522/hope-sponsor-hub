@@ -7,6 +7,8 @@ import validateRoute from './routes/validate';
 import authRoute from './routes/auth';
 import templatesRoute from './routes/templates';
 import gmailRoute from './routes/gmail';
+import queueRoute from './routes/queue';
+import { processQueueTick } from './services/queue';
 import { AuthUser } from '../shared/types';
 
 const app = new Hono<{ Bindings: WorkerEnv; Variables: { user: AuthUser } }>();
@@ -36,6 +38,7 @@ app.route('/api/problems', problemsRoute);
 app.route('/api/validate', validateRoute);
 app.route('/api/templates', templatesRoute);
 app.route('/api/gmail', gmailRoute);
+app.route('/api/queue', queueRoute);
 
 // Fallback to static frontend assets if bound
 app.all('*', async (c) => {
@@ -54,8 +57,21 @@ export default {
     console.log(`[Cron Triggered] ${cron} at ${new Date().toISOString()}`);
 
     if (cron === '* * * * *') {
-      // Send tick (processed in Phase 4)
-      console.log('[Cron] Send tick minute handler');
+      // Send tick (every minute)
+      ctx.waitUntil(
+        (async () => {
+          try {
+            const res = await processQueueTick(env, new Date());
+            if (res.processed) {
+              console.log(`[Cron Send Tick] Sent outreach ${res.outreachId} to ${res.companyName}`);
+            } else {
+              console.log(`[Cron Send Tick] Idle: ${res.reason}`);
+            }
+          } catch (err) {
+            console.error('[Cron Send Tick] Error during send tick:', err);
+          }
+        })()
+      );
     } else if (cron === '*/5 * * * *') {
       // Inbox poll (processed in Phase 5)
       console.log('[Cron] Inbox poll 5-minute handler');
