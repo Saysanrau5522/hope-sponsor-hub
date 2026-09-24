@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sponsor } from '../../shared/types';
+import type { Sponsor } from '@/shared/types';
 import { api, ProblemsResponse } from '../api/client';
 import {
   AlertTriangle,

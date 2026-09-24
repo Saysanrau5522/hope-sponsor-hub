@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sponsor } from '../../shared/types';
+import type { Sponsor } from '@/shared/types';
 import { api } from '../api/client';
 import {
   X,
@@ -15,6 +15,7 @@ import {
   Eye,
   DollarSign,
   Ban,
+  FileText,
 } from 'lucide-react';
 
 interface SponsorDrawerProps {
@@ -46,7 +47,7 @@ export const SponsorDrawer: React.FC<SponsorDrawerProps> = ({ sponsorId, onClose
     const loadDetails = async () => {
       try {
         setLoading(true);
-        const res = await api.getSponsor(sponsorId);
+        const res: any = await api.getSponsor(sponsorId);
         setData(res);
         setDisplayName(res.sponsor.display_name || res.sponsor.company_name);
         setEmail(res.sponsor.primary_email || '');
@@ -333,6 +334,18 @@ export const SponsorDrawer: React.FC<SponsorDrawerProps> = ({ sponsorId, onClose
           </div>
 
           <div className="flex items-center space-x-2">
+            <a
+              href={`/api/templates/letter/preview?sponsor_id=${s?.id}`}
+              download
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 hover:bg-purple-100 transition"
+              title="Preview and download letter dated today in MYT"
+            >
+              <FileText className="w-3.5 h-3.5 mr-1.5" />
+              Preview Letter
+            </a>
+
             <button
               onClick={onClose}
               className="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition"

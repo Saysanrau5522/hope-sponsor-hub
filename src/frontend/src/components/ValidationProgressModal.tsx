@@ -23,7 +23,7 @@ export const ValidationProgressModal: React.FC<ValidationProgressModalProps> = (
 
   const loadStatus = async () => {
     try {
-      const res = await api.getValidationStatus();
+      const res: any = await api.getValidationStatus();
       setStatus(res);
     } catch (err) {
       console.error('Failed to load validation status:', err);

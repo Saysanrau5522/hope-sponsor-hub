@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sponsor } from '../../shared/types';
+import type { Sponsor } from '@/shared/types';
 import { api, SponsorListResponse } from '../api/client';
 import {
   Search,

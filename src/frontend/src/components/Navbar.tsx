@@ -34,6 +34,13 @@ interface NavbarProps {
   onOpenValidationModal: () => void;
 }
 
+interface TabItem {
+  key: TabKey;
+  label: string;
+  icon: any;
+  badge?: number;
+}
+
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   onSelectTab,
@@ -43,7 +50,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleTheme,
   onOpenValidationModal,
 }) => {
-  const tabs = [
+  const tabs: TabItem[] = [
     { key: 'overview', label: 'Overview', icon: LayoutDashboard },
     { key: 'sponsors', label: 'Sponsors', icon: Users },
     { key: 'problems', label: 'Problems', icon: AlertTriangle, badge: problemCount > 0 ? problemCount : undefined },
@@ -52,7 +59,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { key: 'templates', label: 'Templates', icon: FileText },
     { key: 'send_center', label: 'Send Center', icon: Send },
     { key: 'settings', label: 'Settings', icon: Settings },
-  ] as const;
+  ];
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-b border-slate-200 dark:border-slate-800">

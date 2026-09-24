@@ -1,4 +1,4 @@
-import { Sponsor } from '../../shared/types';
+import type { Sponsor } from '@/shared/types';
 
 export interface SponsorListResponse {
   sponsors: Sponsor[];
@@ -90,7 +90,7 @@ export const api = {
       body: JSON.stringify({ sponsor_id, new_email, queue_now }),
     });
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
+      const err: any = await res.json().catch(() => ({}));
       throw new Error(err.error || 'Failed to fix email');
     }
     return res.json();

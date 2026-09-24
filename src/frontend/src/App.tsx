@@ -4,6 +4,7 @@ import { SponsorsTab } from './components/SponsorsTab';
 import { ProblemsTab } from './components/ProblemsTab';
 import { SponsorDrawer } from './components/SponsorDrawer';
 import { ValidationProgressModal } from './components/ValidationProgressModal';
+import { TemplatesTab } from './components/TemplatesTab';
 import { api } from './api/client';
 import {
   Users,
@@ -41,7 +42,7 @@ export const App: React.FC = () => {
     // Load session and problem stats
     const initApp = async () => {
       try {
-        const auth = await api.getAuthMe();
+        const auth: any = await api.getAuthMe();
         if (auth?.user?.email) {
           setUserEmail(auth.user.email);
         }
@@ -50,7 +51,7 @@ export const App: React.FC = () => {
       }
 
       try {
-        const probs = await api.getProblems();
+        const probs: any = await api.getProblems();
         if (probs?.counts) {
           const total =
             probs.counts.no_email +
@@ -166,9 +167,10 @@ export const App: React.FC = () => {
           </div>
         )}
 
+        {activeTab === 'templates' && <TemplatesTab />}
+
         {(activeTab === 'replies' ||
           activeTab === 'calls' ||
-          activeTab === 'templates' ||
           activeTab === 'send_center' ||
           activeTab === 'settings') && (
           <div className="bg-white dark:bg-slate-900 rounded-xl p-8 border border-slate-200 dark:border-slate-800 text-center shadow-sm space-y-3">
