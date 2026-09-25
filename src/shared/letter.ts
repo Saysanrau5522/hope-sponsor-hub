@@ -211,6 +211,9 @@ export function generateLetter(
     return escapedCompanyName;
   });
 
+  // 4. Remove yellow highlights on template placeholders (Date, Company Name, Ref No)
+  docXml = docXml.replace(/<w:highlight\b[^>]*\/>/g, '');
+
   // STRICT ASSERTIONS (Non-negotiable rule from section 6):
   // Assert: no [Recipient remains; the old ref and old date no longer appear;
   // exactly 3 company replacements, 1 ref and 1 date were made.

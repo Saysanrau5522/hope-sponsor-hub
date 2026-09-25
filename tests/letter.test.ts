@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import fs from 'fs';
 import path from 'path';
+import * as fflate from 'fflate';
 import {
   generateLetter,
   extractDocxText,
@@ -115,7 +116,17 @@ describe('Letter Generation (Phase 2 Acceptance & Golden Tests)', () => {
 
     const avgCpu = times.reduce((a, b) => a + b, 0) / times.length;
     console.log(`Average letter generation CPU time: ${avgCpu.toFixed(2)} ms`);
-    // Should comfortably be under 8 ms on warm worker
     expect(avgCpu).toBeLessThan(12);
+  });
+
+  it('removes all yellow highlight placeholder tags from the generated letter', () => {
+    const company = {
+      company_name: 'TEST & CO. SDN BHD',
+      ref_no: 'USM/SSI2627/HOPE/SLF/42',
+    };
+    const { docxBytes } = generateLetter(company, new Date(), templateBytes);
+    const unzipped = fflate.unzipSync(docxBytes);
+    const docXml = fflate.strFromU8(unzipped['word/document.xml']);
+    expect(docXml).not.toContain('<w:highlight');
   });
 });
