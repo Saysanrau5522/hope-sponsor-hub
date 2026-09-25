@@ -114,14 +114,18 @@ gmailRoute.get('/callback', async (c) => {
   return c.redirect('/?tab=send_center&gmail=connected');
 });
 
-// POST /api/gmail/send-test - Send test outreach to authenticated user
+// POST /api/gmail/send-test - Send test outreach to authenticated user or custom email
 gmailRoute.post('/send-test', async (c) => {
   const db = c.env.DB;
   const env = c.env;
   const user = c.get('user');
+  const body = (await c.req.json().catch(() => ({}))) as {
+    recipient?: string;
+    live?: boolean;
+  };
 
-  // Recipient is the authenticated team user
-  const recipientEmail = user.email || 'hopebyssi@gmail.com';
+  // Recipient is from body, or authenticated user, or hopebyssi@gmail.com
+  const recipientEmail = (body.recipient || user.email || 'hopebyssi@gmail.com').trim();
   const fakeCompany = {
     company_name: 'TEST & CO. SDN BHD',
     display_name: 'TEST & CO. SDN BHD',
@@ -158,7 +162,6 @@ gmailRoute.post('/send-test', async (c) => {
   // 3. Prepare tracking token and outreach record
   const trackingToken = generateTrackingToken();
   const outreachId = `test_${Date.now()}`;
-  const rfc822MsgId = `<hope-${outreachId}@hope-sponsor-hub>`;
 
   const senderNameRow = await db
     .prepare("SELECT value FROM settings WHERE key = 'sender_display_name'")
@@ -172,7 +175,9 @@ gmailRoute.post('/send-test', async (c) => {
 
   const fromName = senderNameRow?.value || 'HOPE 5.0 | SSI USM';
   const fromEmail = senderEmailRow?.value || 'hopebyssi@gmail.com';
-  const isDryRun = (env.DRY_RUN === 'true') || dryRunRow?.value === 'true';
+  
+  // If explicitly requested as live, force live; otherwise respect db setting or env fallback
+  const isDryRun = body.live === true ? false : (body.live === false ? true : (dryRunRow ? dryRunRow.value === 'true' : env.DRY_RUN !== 'false'));
 
   // 4. Build MIME message
   const mimeMessage = buildMimeMessage({
@@ -189,30 +194,37 @@ gmailRoute.post('/send-test', async (c) => {
   });
 
   // 5. Send via Gmail upload endpoint (or dry-run simulated)
-  const sendRes = await sendGmailMimeMessage(mimeMessage, env, isDryRun);
-  const now = new Date().toISOString();
+  try {
+    const sendRes = await sendGmailMimeMessage(mimeMessage, env, isDryRun);
+    const now = new Date().toISOString();
 
-  // Log activity
-  await db
-    .prepare('INSERT INTO activity_logs (actor_email, action, details, created_at) VALUES (?, ?, ?, ?)')
-    .bind(
-      user.email,
-      'send_test_email',
-      `Sent test email to ${recipientEmail} (letter dated: ${dateText}, msgId: ${sendRes.id})`,
-      now
-    )
-    .run();
+    // Log activity
+    await db
+      .prepare('INSERT INTO activity_logs (actor_email, action, details, created_at) VALUES (?, ?, ?, ?)')
+      .bind(
+        user.email,
+        'send_test_email',
+        `Sent ${isDryRun ? 'DRY RUN' : 'LIVE'} test email to ${recipientEmail} (letter dated: ${dateText}, msgId: ${sendRes.id})`,
+        now
+      )
+      .run();
 
-  return c.json({
-    success: true,
-    recipient: recipientEmail,
-    dateText,
-    refNo,
-    messageId: sendRes.id,
-    threadId: sendRes.threadId,
-    trackingToken,
-    dryRun: isDryRun,
-  });
+    return c.json({
+      success: true,
+      recipient: recipientEmail,
+      dateText,
+      refNo,
+      messageId: sendRes.id,
+      threadId: sendRes.threadId,
+      trackingToken,
+      dryRun: isDryRun,
+    });
+  } catch (err: any) {
+    return c.json({
+      error: `Failed to send email via Gmail API: ${err.message}`,
+      recipient: recipientEmail,
+    }, 400);
+  }
 });
 
 export default gmailRoute;

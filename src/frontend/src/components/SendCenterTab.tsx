@@ -39,6 +39,8 @@ export const SendCenterTab: React.FC<SendCenterTabProps> = ({ onRefreshData }) =
   // Send test state
   const [sendingTest, setSendingTest] = useState(false);
   const [testResult, setTestResult] = useState<any>(null);
+  const [testRecipient, setTestRecipient] = useState<string>('hopebyssi@gmail.com');
+  const [isTestLive, setIsTestLive] = useState<boolean>(true);
 
   // Batch Review Modal state
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -172,14 +174,22 @@ export const SendCenterTab: React.FC<SendCenterTabProps> = ({ onRefreshData }) =
   };
 
   const handleSendTestToMyself = async () => {
+    if (!testRecipient) return;
     setSendingTest(true);
     setTestResult(null);
     try {
       const res: any = await fetch('/api/gmail/send-test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipient: testRecipient,
+          live: isTestLive,
+        }),
       }).then((r) => r.json());
 
+      if (res.error) {
+        alert(`Send failed: ${res.error}`);
+      }
       setTestResult(res);
       await loadAll();
       if (onRefreshData) onRefreshData();
@@ -353,27 +363,62 @@ export const SendCenterTab: React.FC<SendCenterTabProps> = ({ onRefreshData }) =
           </button>
         </div>
 
-        {/* Send Test to Myself */}
+        {/* Send Test Outreach Card */}
         <div className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3 flex flex-col justify-between">
           <div className="space-y-1.5">
             <div className="flex items-center space-x-2 text-blue-600 dark:text-blue-400">
               <Mail className="w-5 h-5" />
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                Send Test to Myself
+                Send Test Outreach
               </h3>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Instant test email to your logged-in address with real proposal PDF and live letter dated today.
+              Dispatches test email with official proposal PDF and personalized DOCX letter dated today.
             </p>
           </div>
 
-          <button
-            onClick={handleSendTestToMyself}
-            disabled={sendingTest}
-            className="w-full inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition shadow-sm disabled:opacity-50"
-          >
-            {sendingTest ? 'Sending Test...' : 'Send Test to Myself'}
-          </button>
+          <div className="space-y-2.5 pt-1">
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                Recipient Email
+              </label>
+              <input
+                type="email"
+                value={testRecipient}
+                onChange={(e) => setTestRecipient(e.target.value)}
+                placeholder="your.email@gmail.com"
+                className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono"
+              />
+            </div>
+
+            <div className="flex items-center justify-between text-xs">
+              <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={isTestLive}
+                  onChange={(e) => setIsTestLive(e.target.checked)}
+                  className="rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                />
+                <span className="text-slate-700 dark:text-slate-300 font-medium text-[11px]">
+                  Real email (Live)
+                </span>
+              </label>
+
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                isTestLive ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+              }`}>
+                {isTestLive ? 'Live Inbox Delivery' : 'Simulated (Dry Run)'}
+              </span>
+            </div>
+
+            <button
+              onClick={handleSendTestToMyself}
+              disabled={sendingTest || !testRecipient}
+              className="w-full inline-flex items-center justify-center px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition shadow-sm disabled:opacity-50 cursor-pointer"
+            >
+              {sendingTest ? 'Sending Test...' : isTestLive ? 'Send Real Test to Inbox' : 'Simulate Test (Dry Run)'}
+            </button>
+          </div>
         </div>
       </div>
 

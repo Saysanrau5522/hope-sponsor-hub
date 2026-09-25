@@ -368,7 +368,7 @@ export async function processQueueTick(
 
     const fromName = senderNameRow?.value || 'HOPE 5.0 | SSI USM';
     const fromEmail = senderEmailRow?.value || 'hopebyssi@gmail.com';
-    const isDryRun = env.DRY_RUN === 'true' || dryRunRow?.value === 'true';
+    const isDryRun = dryRunRow ? dryRunRow.value === 'true' : (env.DRY_RUN !== 'false');
 
     const mimeMessage = buildMimeMessage({
       fromName,
