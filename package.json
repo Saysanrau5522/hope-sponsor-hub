@@ -15,7 +15,8 @@
     "db:migrate:local": "wrangler d1 migrations apply hope-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply hope-db --remote",
     "seed:local": "node execution/seed_d1.mjs --local",
-    "seed:remote": "node execution/seed_d1.mjs --remote"
+    "seed:remote": "node execution/seed_d1.mjs --remote",
+    "upload:remote": "node execution/upload_assets.mjs --remote"
   },
   "dependencies": {
     "docx-preview": "^0.3.3",

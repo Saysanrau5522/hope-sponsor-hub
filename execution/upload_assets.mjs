@@ -50,11 +50,11 @@ for (const f of filesToUpload) {
 // Try uploading via wrangler if bucket exists, or log command
 for (const f of filesToUpload) {
   try {
-    const cmd = `npx wrangler r2 object put hope-assets/${f.destination} --file="${f.source}" ${targetEnv}`;
+    const cmd = `npx.cmd wrangler r2 object put hope-assets/${f.destination} --file="${f.source}" ${targetEnv}`;
     console.log(`Executing: ${cmd}`);
     execSync(cmd, { stdio: 'inherit', cwd: rootDir });
   } catch (err) {
-    console.warn(`Note: Direct wrangler r2 upload skipped (local bucket created upon worker dev): ${err.message}`);
+    console.warn(`Note: Direct wrangler r2 upload skipped: ${err.message}`);
   }
 }
 
