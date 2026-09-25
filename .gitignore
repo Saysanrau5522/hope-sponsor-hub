@@ -5,6 +5,7 @@ dist/
 .env
 .env.*
 !.env.example
+.dev.vars
 credentials.json
 token.json
 npm-debug.log*
