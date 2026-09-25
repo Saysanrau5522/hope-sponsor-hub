@@ -28,6 +28,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ onRefreshData }) => {
   const [isBackingUp, setIsBackingUp] = useState<boolean>(false);
   const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
   const [backupMessage, setBackupMessage] = useState<string | null>(null);
+  const [isConnectingGmail, setIsConnectingGmail] = useState<boolean>(false);
 
   const loadSettingsAndBackups = async () => {
     setIsLoading(true);
@@ -79,6 +80,22 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ onRefreshData }) => {
       setBackupMessage(`Backup failed: ${err.message}`);
     } finally {
       setIsBackingUp(false);
+    }
+  };
+
+  const handleConnectGmail = async () => {
+    setIsConnectingGmail(true);
+    try {
+      const res: any = await fetch('/api/gmail/auth-url').then((r) => r.json());
+      if (res.authUrl) {
+        window.location.href = res.authUrl;
+      } else {
+        alert(res.error || 'Failed to generate Google Auth URL');
+      }
+    } catch (err: any) {
+      alert(`Error initiating Gmail auth: ${err.message}`);
+    } finally {
+      setIsConnectingGmail(false);
     }
   };
 
@@ -324,7 +341,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ onRefreshData }) => {
           Sender Gmail Account Status
         </h2>
 
-        <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 text-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 text-xs gap-3">
           <div>
             <div className="font-semibold text-slate-800 dark:text-slate-200">
               {settings.sender_email || 'hopebyssi@gmail.com'}
@@ -334,15 +351,36 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ onRefreshData }) => {
             </div>
           </div>
 
-          <span
-            className={`px-2.5 py-1 rounded-full text-[11px] font-semibold ${
-              system.gmailConnected
-                ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                : 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
-            }`}
-          >
-            {system.gmailConnected ? 'Connected & Ready' : 'Pending OAuth / Dry Run Active'}
-          </span>
+          <div className="flex items-center gap-3">
+            <span
+              className={`px-2.5 py-1 rounded-full text-[11px] font-semibold ${
+                system.gmailConnected
+                  ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                  : 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+              }`}
+            >
+              {system.gmailConnected ? 'Connected & Ready' : 'Pending OAuth / Dry Run Active'}
+            </span>
+
+            <button
+              type="button"
+              onClick={handleConnectGmail}
+              disabled={isConnectingGmail}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-sm transition-all duration-200 disabled:opacity-50 cursor-pointer"
+            >
+              {isConnectingGmail ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  Connecting...
+                </>
+              ) : (
+                <>
+                  <Mail className="w-3.5 h-3.5" />
+                  {system.gmailConnected ? 'Reconnect Gmail' : 'Connect Gmail Account'}
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>
