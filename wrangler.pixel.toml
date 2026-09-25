@@ -6,7 +6,7 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "hope-db"
-database_id = "hope-db-local"
+database_id = "e7df5942-2ff8-4951-8033-9c08acb5056c"
 
 [vars]
 ENVIRONMENT = "development"

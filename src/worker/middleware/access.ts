@@ -9,6 +9,7 @@ const JWKS_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 export interface WorkerEnv {
   DB: D1Database;
   BUCKET?: R2Bucket;
+  ASSETS_BUCKET?: R2Bucket;
   ASSETS?: Fetcher;
   ENVIRONMENT?: string;
   CF_ACCESS_TEAM_DOMAIN?: string;

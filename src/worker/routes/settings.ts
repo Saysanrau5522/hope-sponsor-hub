@@ -22,9 +22,10 @@ settingsRoute.get('/', async (c) => {
 
   // Check R2 Backups
   let latestBackup: string | null = null;
-  if (c.env.ASSETS_BUCKET) {
+  const bucket = c.env.BUCKET || c.env.ASSETS_BUCKET;
+  if (bucket) {
     try {
-      const objects = await c.env.ASSETS_BUCKET.list({ prefix: 'backups/', limit: 5 });
+      const objects = await bucket.list({ prefix: 'backups/', limit: 5 });
       if (objects.objects.length > 0) {
         latestBackup = objects.objects[objects.objects.length - 1].key;
       }
@@ -37,7 +38,7 @@ settingsRoute.get('/', async (c) => {
     settings: settingsMap,
     system: {
       gmailConnected: Boolean(tokenRow?.value),
-      r2Bound: Boolean(c.env.ASSETS_BUCKET),
+      r2Bound: Boolean(bucket),
       latestBackup,
       timezone: 'Asia/Kuala_Lumpur (UTC+8)',
       environment: c.env.ENVIRONMENT || 'production',
@@ -95,11 +96,12 @@ settingsRoute.post('/backup', async (c) => {
 
 // GET /api/settings/backups - List backups
 settingsRoute.get('/backups', async (c) => {
-  if (!c.env.ASSETS_BUCKET) {
+  const bucket = c.env.BUCKET || c.env.ASSETS_BUCKET;
+  if (!bucket) {
     return c.json({ backups: [] });
   }
 
-  const list = await c.env.ASSETS_BUCKET.list({ prefix: 'backups/', limit: 20 });
+  const list = await bucket.list({ prefix: 'backups/', limit: 20 });
   const backups = list.objects.map((o) => ({
     key: o.key,
     sizeBytes: o.size,

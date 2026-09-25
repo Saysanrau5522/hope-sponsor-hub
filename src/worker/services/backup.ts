@@ -49,9 +49,10 @@ export async function performDailyBackup(env: WorkerEnv): Promise<BackupResult> 
 
   const jsonString = JSON.stringify(payload);
   const sizeBytes = new TextEncoder().encode(jsonString).length;
+  const bucket = env.BUCKET || env.ASSETS_BUCKET;
 
-  if (env.ASSETS_BUCKET) {
-    await env.ASSETS_BUCKET.put(backupKey, jsonString, {
+  if (bucket) {
+    await bucket.put(backupKey, jsonString, {
       httpMetadata: { contentType: 'application/json' },
       customMetadata: {
         totalSponsors: String(sponsorsRes.results?.length || 0),
